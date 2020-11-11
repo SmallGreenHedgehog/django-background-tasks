@@ -17,11 +17,16 @@ class SignalManager(object):
         if platform.system() == 'Windows':
             signal.signal(signal.SIGTERM, self.exit_gracefully)
         else:
+            signal.signal(signal.SIGTERM, self.exit_gracefully)
+            signal.signal(signal.SIGINT, self.exit_gracefully)
             signal.signal(signal.SIGTSTP, self.exit_gracefully)
             signal.signal(signal.SIGUSR1, self.speed_up)
             signal.signal(signal.SIGUSR2, self.slow_down)
 
     def exit_gracefully(self, signum, frame):
+        print("[+] Process tasks has got signal ",
+              signal.Signals(signum).name,
+              ", exiting...")
         self.kill_now = True
 
     def speed_up(self, signum, frame):
@@ -29,3 +34,12 @@ class SignalManager(object):
 
     def slow_down(self, signum, frame):
         self.time_to_wait = TTW_SLOW
+
+
+class SignalManagerDev(SignalManager):
+
+    def __init__(self):
+        if platform.system() != 'Windows':
+            signal.signal(signal.SIGTSTP, self.exit_gracefully)
+            signal.signal(signal.SIGUSR1, self.speed_up)
+            signal.signal(signal.SIGUSR2, self.slow_down)
