@@ -127,6 +127,9 @@ class TaskManager(models.Manager):
     def drop_task(self, task_name, args=None, kwargs=None):
         return self.get_task(task_name, args, kwargs).delete()
 
+    def stop_repeating_task(self, task_name, args=None, kwargs=None):
+        return self.get_task(task_name, args, kwargs).update(repeat=Task.NEVER)
+
 
 @python_2_unicode_compatible
 class Task(models.Model):
