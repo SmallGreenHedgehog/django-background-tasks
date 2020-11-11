@@ -236,6 +236,7 @@ class Task(models.Model):
         return file.getvalue()
 
     def increment_attempts(self):
+        self.refresh_from_db()
         self.attempts += 1
         self.save()
 
