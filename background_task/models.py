@@ -151,7 +151,9 @@ class Task(models.Model):
     # The repeat implementation is based on this encoding
     EVERY_HALF_MINUTE = 30
     EVERY_MINUTE = 60
-    EVERY_10_MINUTES = 600
+    EVERY_3_MINUTES = EVERY_MINUTE * 3
+    EVERY_5_MINUTES = EVERY_MINUTE * 5
+    EVERY_10_MINUTES = EVERY_MINUTE * 10
     HOURLY = 3600
     DAILY = 24 * HOURLY
     WEEKLY = 7 * DAILY
@@ -161,6 +163,8 @@ class Task(models.Model):
     REPEAT_CHOICES = (
         (EVERY_HALF_MINUTE, 'every 30 sec'),
         (EVERY_MINUTE, 'every 1 minute'),
+        (EVERY_3_MINUTES, 'every 3 minutes'),
+        (EVERY_5_MINUTES, 'every 5 minutes'),
         (EVERY_10_MINUTES, 'every 10 minutes'),
         (HOURLY, 'hourly'),
         (DAILY, 'daily'),
