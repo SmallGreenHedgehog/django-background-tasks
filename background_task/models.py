@@ -125,11 +125,9 @@ class TaskManager(models.Manager):
         return qs.filter(task_hash=task_hash)
 
     def drop_task(self, task_name, args=None, kwargs=None):
-        logger.debug(f'drop task: {task_name}')
         return self.get_task(task_name, args, kwargs).delete()
 
     def stop_repeating_task(self, task_name, args=None, kwargs=None):
-        logger.debug(f'stop repeating task: {task_name}')
         return self.get_task(task_name, args, kwargs).update(repeat=Task.NEVER)
 
 
@@ -207,12 +205,10 @@ class Task(models.Model):
         """
         Check if the locked_by process is still running.
         """
-        logger.debug(f'locked_by_pid_running: {self.locked_by}')
         if self.locked_by:
             try:
                 # won't kill the process. kill is a bad named system call
                 os.kill(int(self.locked_by), 0)
-                logger.debug(f'TASK locked_by_pid_running after KILL: {self.locked_by}')
                 return True
             except:
                 return False
@@ -224,7 +220,6 @@ class Task(models.Model):
         """
         Check if the last_error field is empty.
         """
-        logger.debug(f'has_error: {self.last_error}')
         return bool(self.last_error)
     has_error.boolean = True
 
@@ -264,7 +259,6 @@ class Task(models.Model):
         Set a new time to run the task in future, or create a CompletedTask and delete the Task
         if it has reached the maximum of allowed attempts
         '''
-        logger.debug(f'reschedule: {self.task_name}')
         self.last_error = self._extract_error(type, err, traceback)
         self.increment_attempts()
         if self.has_reached_max_attempts() or isinstance(err, InvalidTaskError):
@@ -282,13 +276,11 @@ class Task(models.Model):
             self.locked_by = None
             self.locked_at = None
             self.save()
-        logger.debug(f'reschedule finished: {self.task_name}')
 
     def create_completed_task(self):
         '''
         Returns a new CompletedTask instance with the same values
         '''
-        logger.debug(f'create_completed_task: {self.task_name}')
         completed_task = CompletedTask(
             task_name=self.task_name,
             task_params=self.task_params,
@@ -307,14 +299,12 @@ class Task(models.Model):
             repeat_until=self.repeat_until,
         )
         completed_task.save()
-        logger.debug(f'create_completed_task finished: {self.task_name}')
         return completed_task
 
     def create_repetition(self):
         """
         :return: A new Task with an offset of self.repeat, or None if the self.repeat_until is reached
         """
-        logger.debug(f'create_repetition finished: {self.task_name}')
         if not self.is_repeating_task():
             return None
 
@@ -340,7 +330,6 @@ class Task(models.Model):
             repeat_until=self.repeat_until,
         )
         new_task.save()
-        logger.debug(f'create_repetition finished: {self.task_name}')
         return new_task
 
     def save(self, *arg, **kw):
@@ -450,7 +439,6 @@ class CompletedTask(models.Model):
             try:
                 # won't kill the process. kill is a bad named system call
                 os.kill(int(self.locked_by), 0)
-                logger.debug(f'COMPLETED TASK locked_by_pid_running after KILL: {self.locked_by}')
                 return True
             except:
                 return False

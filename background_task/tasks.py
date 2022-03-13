@@ -39,7 +39,6 @@ def bg_runner(proxy_task, task=None, *args, **kwargs):
             if task_qs:
                 task = task_qs[0]
         if func is None:
-            logger.debug(f'!!!!!!!!!!!!!!!!!!!raise BackgroundTaskError')
             raise BackgroundTaskError("Function is None, can't execute!")
         func(*args, **kwargs)
 
@@ -76,7 +75,6 @@ class PoolRunner:
         return self._pool_instance
 
     def run(self, proxy_task, task=None, *args, **kwargs):
-        logger.debug(f'run pool runner with task: {task}')
         self._pool.apply_async(func=self._bg_runner, args=(proxy_task, task) + tuple(args), kwds=kwargs)
 
     __call__ = run
@@ -136,7 +134,6 @@ class Tasks(object):
             self._bg_runner(proxy_task, task, *args, **kwargs)
 
     def run_next_task(self, queue=None):
-        logger.debug(f'run next task')
         return self._runner.run_next_task(self, queue)
 
 
