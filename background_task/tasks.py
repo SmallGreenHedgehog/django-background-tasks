@@ -308,7 +308,12 @@ def autodiscover():
     import imp
     from django.conf import settings
 
-    for app in settings.INSTALLED_APPS:
+    installed_apps = settings.INSTALLED_APPS.copy()
+    # report_builder uses tasks.py module, but this module contains celery tasks, and django-background-tasks can't
+    # process tasks from this module
+    installed_apps.remove('report_builder')
+
+    for app in installed_apps:
         try:
             app_path = import_module(app).__path__
         except (AttributeError, ImportError):
