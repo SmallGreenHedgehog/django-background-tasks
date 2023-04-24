@@ -268,7 +268,7 @@ class Task(models.Model):
             task_failed.send(sender=self.__class__, task_id=self.id, completed_task=completed)
             self.delete()
         else:
-            backoff = timedelta(seconds=(self.attempts ** 4) + 5)
+            backoff = self._get_backoff_timedelta()
             self.run_at = timezone.now() + backoff
             logger.warning('Rescheduling task %s for %s later at %s', self,
                 backoff, self.run_at)
@@ -276,6 +276,13 @@ class Task(models.Model):
             self.locked_by = None
             self.locked_at = None
             self.save()
+
+    def _get_backoff_timedelta(self):
+        sleep_time_seconds = (self.attempts ** 4) + 5
+        max_sleep_time = app_settings.BACKGROUND_TASK_MAX_SLEEP_TIME
+        if max_sleep_time > 0:
+            sleep_time_seconds = min(sleep_time_seconds, max_sleep_time)
+        return timedelta(seconds=sleep_time_seconds)
 
     def create_completed_task(self):
         '''
