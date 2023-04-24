@@ -23,6 +23,11 @@ class AppSettings(object):
         return self.MAX_ATTEMPTS
 
     @property
+    def BACKGROUND_TASK_MAX_SLEEP_TIME(self):
+        """Maximum possible sleep time between of task attempts."""
+        return getattr(settings, 'BACKGROUND_TASK_MAX_SLEEP_TIME', 0)
+
+    @property
     def MAX_RUN_TIME(self):
         """Maximum possible task run time, after which tasks will be unlocked and tried again."""
         return getattr(settings, 'MAX_RUN_TIME', 3600)
